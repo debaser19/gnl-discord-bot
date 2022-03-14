@@ -56,7 +56,7 @@ def parse_player(player, matches):
         case 'c':
             return matches[1][0]
         case 'd':
-            return matches[0][1]
+            return matches[1][1]
         case 'e':
             return matches[2][0]
         case 'f':
