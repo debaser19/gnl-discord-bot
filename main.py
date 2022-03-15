@@ -87,6 +87,13 @@ def get_matchup_sheet():
     return sh.get_worksheet(1)
 
 
+@bot.event
+async def add_reaction(ctx.message):
+    rigged_emote = '<:RiggedGNL:833837273081577472>'
+    if 'rigged' in ctx.message.content.lower():
+        await ctx.message.add_reaction(rigged_emote)
+
+
 @bot.command(name="mmr")
 async def mmr(ctx: commands.Context, w3c_username, w3c_race):
     race = get_race(w3c_race)
