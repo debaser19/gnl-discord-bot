@@ -88,7 +88,7 @@ def get_matchup_sheet():
 
 
 @bot.event
-async def add_reaction(ctx.message):
+async def add_reaction(ctx: commands.Context):
     rigged_emote = '<:RiggedGNL:833837273081577472>'
     if 'rigged' in ctx.message.content.lower():
         await ctx.message.add_reaction(rigged_emote)
