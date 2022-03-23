@@ -17,6 +17,8 @@ on:
 env:
   REGISTRY: "registry.digitalocean.com/warcraft-gym"
   IMAGE_NAME: "gnl-bot"
+  DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+  W3C_URL: ${{ secrets.W3C_URL }}
 
 #3
 jobs:
@@ -71,3 +73,6 @@ jobs:
             --restart always \
             --name $(echo $IMAGE_NAME) \
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
+            # create config.py and copy to docker container
+            echo "token = '$DISCORD_TOKEN'\nw3c_url = '$W3C_URL'" > config.py
+            docker cp config.py /data
