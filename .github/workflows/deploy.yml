@@ -73,6 +73,6 @@ jobs:
             --restart always \
             --name $(echo $IMAGE_NAME) \
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
-            echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" > config.py
-            echo "W3C_URL=${{ secrets.W3C_URL }}" >> config.py
+            echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
+            echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
             docker cp config.py gnl-bot:/data
