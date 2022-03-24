@@ -266,6 +266,6 @@ async def lookup(ctx: commands.Context, user):
 async def on_ready():
     print(f'We have logged in as {bot.user}')
 
-DISCORD_TOKEN = os.environ['DISCORD_TOKEN']
-W3C_URL = os.environ['W3C_URL']
+DISCORD_TOKEN = config.DISCORD_TOKEN
+W3C_URL = config.W3C_URL
 bot.run(DISCORD_TOKEN)
