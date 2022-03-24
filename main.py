@@ -5,8 +5,7 @@ import gspread
 import pandas as pd
 from datetime import datetime
 import json
-
-import config
+import os
 
 bot = commands.Bot(command_prefix="!")
 
@@ -99,7 +98,7 @@ def get_matchup_sheet():
 async def mmr(ctx: commands.Context, w3c_username, w3c_race):
     race = get_race(w3c_race)
     username = w3c_username.replace('#', '%23')
-    res = requests.get(config.w3c_url + username + '/game-mode-stats?gateWay=20&season=10')
+    res = requests.get(W3C_URL + username + '/game-mode-stats?gateWay=20&season=10')
     for item in res.json():
         if item['gameMode'] == 1 and item['race'] == race:
             mmr = item['mmr']
@@ -116,7 +115,7 @@ async def mmr(ctx: commands.Context, w3c_username, w3c_race):
 @bot.command(name='stats')
 async def stats(ctx: commands.Context, w3c_username):
     username = w3c_username.replace('#', '%23')
-    res = requests.get(config.w3c_url + username + '/game-mode-stats?gateWay=20&season=10')
+    res = requests.get(W3C_URL + username + '/game-mode-stats?gateWay=20&season=10')
     race_list = []
 
     for item in res.json():
@@ -266,5 +265,6 @@ async def lookup(ctx: commands.Context, user):
 async def on_ready():
     print(f'We have logged in as {bot.user}')
 
-
-bot.run(config.token)
+DISCORD_TOKEN = os.environ['DISCORD_TOKEN']
+W3C_URL = os.environ['W3C_URL']
+bot.run(DISCORD_TOKEN)
