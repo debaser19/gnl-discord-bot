@@ -69,9 +69,10 @@ jobs:
             # Remove old container
             docker rm $(echo $IMAGE_NAME)
             # Run a new container from a new image
-            docker run -d \
-            --build-arg DISCORD_TOKEN=$DISCORD_TOKEN \
-            --build-arg W3C_URL=$W3C_URL \
+            # docker run -d \
+            # --build-arg DISCORD_TOKEN=$DISCORD_TOKEN \
+            # --build-arg W3C_URL=$W3C_URL \
             --restart always \
             --name $(echo $IMAGE_NAME) \
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
+            echo "DISCORD_TOKEN=$DISCORD_TOKEN\nW3C_URL=$W3C_URL" > config.py

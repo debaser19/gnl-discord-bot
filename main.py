@@ -5,7 +5,8 @@ import gspread
 import pandas as pd
 from datetime import datetime
 import json
-import os
+
+import config
 
 bot = commands.Bot(command_prefix="!")
 
@@ -98,7 +99,7 @@ def get_matchup_sheet():
 async def mmr(ctx: commands.Context, w3c_username, w3c_race):
     race = get_race(w3c_race)
     username = w3c_username.replace('#', '%23')
-    res = requests.get(W3C_URL + username + '/game-mode-stats?gateWay=20&season=10')
+    res = requests.get(config.W3C_URL + username + '/game-mode-stats?gateWay=20&season=10')
     for item in res.json():
         if item['gameMode'] == 1 and item['race'] == race:
             mmr = item['mmr']
@@ -115,7 +116,7 @@ async def mmr(ctx: commands.Context, w3c_username, w3c_race):
 @bot.command(name='stats')
 async def stats(ctx: commands.Context, w3c_username):
     username = w3c_username.replace('#', '%23')
-    res = requests.get(W3C_URL + username + '/game-mode-stats?gateWay=20&season=10')
+    res = requests.get(config.W3C_URL + username + '/game-mode-stats?gateWay=20&season=10')
     race_list = []
 
     for item in res.json():
