@@ -75,6 +75,6 @@ jobs:
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
             echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
             echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
-            echo "${{ secrets.SHEETS_KEY }}" > ${{ secrets.SHEETS_KEY_FILENAME }}
+            echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
             docker cp config.py gnl-bot:/data
             docker cp ${{ secrets.SHEETS_KEY_FILENAME }} gnl-bot:/data
