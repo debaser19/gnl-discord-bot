@@ -78,3 +78,4 @@ jobs:
             echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
             docker cp config.py gnl-bot:/data
             docker cp ${{ secrets.SHEETS_KEY_FILENAME }} gnl-bot:/data
+            rm -f port* config.py
