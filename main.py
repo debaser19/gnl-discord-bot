@@ -202,7 +202,7 @@ async def bet(ctx: commands.Context, user, points):
             bet_content = [author, player, points, current_time]
             sh.append_row(bet_content)
             await message.delete()
-            emoji = '\N{THUMBS UP SIGN}'
+            emoji = '<:RiggedGNL:833837273081577472>'
             await ctx.message.add_reaction(emoji)
             await ctx.reply(f'{ctx.author} bet {points} points on {player}')
     else:
