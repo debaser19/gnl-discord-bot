@@ -248,6 +248,31 @@ async def listmatches(ctx: commands.Context):
     await ctx.send(embed=embed)
 
 
+@bot.command(name='clearbets')
+async def clearbets(ctx: commands.Context):
+    sh = get_betting_sheet()
+    try:
+        sh.resize(rows=1)
+        sh.resize(rows=500)
+        print(f'Bets cleared by {ctx.author}')
+        await ctx.reply(f'Bets cleared by {ctx.author}')
+    except Exception as e:
+        await ctx.reply(f'Error clearing bets: {e}')
+
+
+@bot.command(name='clearmatches')
+async def clearmatches(ctx: commands.Context):
+    sh = get_matchup_sheet()
+    try:
+        sh.resize(rows=1)
+        sh.resize(rows=501)
+        sh.delete_rows(1)
+        print(f'Matches cleared by {ctx.author}')
+        await ctx.reply(f'Matches cleared by {ctx.author}')
+    except Exception as e:
+        await ctx.reply(f'Error clearing matches: {e}')
+
+
 @bot.command()
 async def toUnicode(ctx, emoji):
     await ctx.send(f'{emoji} **{json.dumps(emoji)[1:-1]}**')
