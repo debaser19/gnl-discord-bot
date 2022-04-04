@@ -15,6 +15,7 @@ env:
   CONTAINER_NAME: warcraft-gym           # set this to the name of the container in the
                                                # containerDefinitions section of your task definition
   IMAGE_NAME: warcraft-gym
+  IMAGE_TAG: latest
 
 jobs:
   build-and-push:
@@ -42,7 +43,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         # IMAGE_TAG: ${{ github.sha }} # used github sha as image tag
-        IMAGE_TAG: latest
+        IMAGE_TAG: ${{ env.IMAGE_TAG }}
       run: |
         # Build a docker container and
         # push it to ECR so that it can
@@ -76,7 +77,7 @@ jobs:
             sudo docker run -d \
             --restart always \
             --name $(echo $IMAGE_NAME) \
-            ${{ steps.login-ecr.outputs.registry }}/$(echo $IMAGE_NAME):$(echo ${{ github.sha }})
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
             sudo echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
             sudo echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
             sudo echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
