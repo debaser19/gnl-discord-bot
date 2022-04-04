@@ -16,8 +16,8 @@ env:
                                                # containerDefinitions section of your task definition
 
 jobs:
-  deploy:
-    name: Deploy
+  build-and-push:
+    name: Build and Push
     runs-on: ubuntu-latest
     environment: production
 
@@ -49,18 +49,36 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-    - name: Fill in the new image ID in the Amazon ECS task definition
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: ${{ env.ECS_TASK_DEFINITION }}
-        container-name: ${{ env.CONTAINER_NAME }}
-        image: ${{ steps.build-image.outputs.image }}
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build-and-push
 
-    - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: ${{ env.ECS_SERVICE }}
-        cluster: ${{ env.ECS_CLUSTER }}
-        wait-for-service-stability: true
+    steps:
+      - name: Deploy to AWS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          env:
+            IMAGE_NAME: warcraft-gym
+          port: 22
+          script: |
+            # Login to registry
+            sudo `aws ecr get-login --no-include-email`
+            # Stop running container
+            docker stop $(echo $IMAGE_NAME)
+            # Remove old container
+            docker rm $(echo $IMAGE_NAME)
+            # Run a new container from a new image
+            docker run -d \
+            --restart always \
+            --name $(echo $IMAGE_NAME) \
+            ${{ steps.login-ecr.outputs.registry }}/$(echo $IMAGE_NAME):$(echo ${{ github.sha }})
+            echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
+            echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
+            echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
+            docker cp config.py gnl-bot:/data
+            docker cp ${{ secrets.SHEETS_KEY_FILENAME }} warcraft-gym:/data
+            rm -f port* config.py 
