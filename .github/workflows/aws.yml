@@ -66,22 +66,20 @@ jobs:
           envs: IMAGE_NAME
           port: 22
           script: |
-            # Elevate session
-            sudo su
             # Login to registry
-            `aws ecr get-login --no-include-email`
+            sudo `aws ecr get-login --no-include-email`
             # Stop running container
-            docker stop $(echo $IMAGE_NAME)
+            sudo docker stop $(echo $IMAGE_NAME)
             # Remove old container
-            docker rm $(echo $IMAGE_NAME)
+            sudo docker rm $(echo $IMAGE_NAME)
             # Run a new container from a new image
-            docker run -d \
+            sudo docker run -d \
             --restart always \
             --name $(echo $IMAGE_NAME) \
             ${{ steps.login-ecr.outputs.registry }}/$(echo $IMAGE_NAME):$(echo ${{ github.sha }})
-            echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
-            echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
-            echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
-            docker cp config.py gnl-bot:/data
-            docker cp ${{ secrets.SHEETS_KEY_FILENAME }} warcraft-gym:/data
-            rm -f port* config.py 
+            sudo echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
+            sudo echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
+            sudo echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
+            sudo docker cp config.py gnl-bot:/data
+            sudo docker cp ${{ secrets.SHEETS_KEY_FILENAME }} warcraft-gym:/data
+            sudo rm -f port* config.py 
