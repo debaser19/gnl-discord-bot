@@ -52,35 +52,29 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    needs: build-and-push
-
-    steps:
-      - name: Deploy to AWS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSHKEY }}
-          envs: IMAGE_NAME
-          port: 22
-          script: |
-            # Login to registry
-            sudo `aws ecr get-login --no-include-email`
-            # Stop running container
-            sudo docker stop $(echo $IMAGE_NAME)
-            # Remove old container
-            sudo docker rm $(echo $IMAGE_NAME)
-            # Run a new container from a new image
-            sudo docker run -d \
-            --restart always \
-            --name $(echo $IMAGE_NAME) \
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-            sudo echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
-            sudo echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
-            sudo echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
-            sudo docker cp config.py gnl-bot:/data
-            sudo docker cp ${{ secrets.SHEETS_KEY_FILENAME }} warcraft-gym:/data
-            sudo rm -f port* config.py 
+    - name: Deploy to AWS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSHKEY }}
+        envs: IMAGE_NAME
+        port: 22
+        script: |
+          # Login to registry
+          sudo `aws ecr get-login --no-include-email`
+          # Stop running container
+          sudo docker stop $(echo $IMAGE_NAME)
+          # Remove old container
+          sudo docker rm $(echo $IMAGE_NAME)
+          # Run a new container from a new image
+          sudo docker run -d \
+          --restart always \
+          --name $(echo $IMAGE_NAME) \
+          ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          sudo echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
+          sudo echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
+          sudo echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
+          sudo docker cp config.py warcraft-gym:/data
+          sudo docker cp ${{ secrets.SHEETS_KEY_FILENAME }} warcraft-gym:/data
+          sudo rm -f port* config.py 
