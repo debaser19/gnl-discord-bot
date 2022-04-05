@@ -6,15 +6,10 @@ on:
       - master
 
 env:
-  AWS_REGION: us-east-1                   # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: warcraft-gym           # set this to your Amazon ECR repository name
-  ECS_SERVICE: warcraft-gym-service                 # set this to your Amazon ECS service name
-  ECS_CLUSTER: warcraft-gym                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: .aws/aws-task-definition.json # set this to the path to your Amazon ECS task definition
-                                               # file, e.g. .aws/task-definition.json
-  CONTAINER_NAME: warcraft-gym           # set this to the name of the container in the
-                                               # containerDefinitions section of your task definition
-  IMAGE_NAME: warcraft-gym
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: gnl-bot
+  CONTAINER_NAME: gnl-bot
+  IMAGE_NAME: gnl-bot
   IMAGE_TAG: latest
 
 jobs:
@@ -77,6 +72,6 @@ jobs:
           sudo echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
           sudo echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
           sudo echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
-          sudo docker cp config.py warcraft-gym:/data
-          sudo docker cp ${{ secrets.SHEETS_KEY_FILENAME }} warcraft-gym:/data
+          sudo docker cp config.py ${{ env.CONTAINER_NAME }}:/data
+          sudo docker cp ${{ secrets.SHEETS_KEY_FILENAME }} ${{ env.CONTAINER_NAME }}:/data
           sudo rm -f port* config.py 
