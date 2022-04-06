@@ -114,9 +114,9 @@ async def mmr(ctx: commands.Context, w3c_username, w3c_race):
 
 
 @bot.command(name='stats')
-async def stats(ctx: commands.Context, w3c_username):
+async def stats(ctx: commands.Context, w3c_username, season):
     username = w3c_username.replace('#', '%23')
-    res = requests.get(config.W3C_URL + username + '/game-mode-stats?gateWay=20&season=10')
+    res = requests.get(config.W3C_URL + username + f'/game-mode-stats?gateWay=20&season={season}')
     race_list = []
 
     for item in res.json():
@@ -147,10 +147,8 @@ async def stats(ctx: commands.Context, w3c_username):
     )
 
     # file = discord.File('images/fom.png', filename='fom.png')
-    fom_logo = 'https://s3.amazonaws.com/challonge_app/organizations/images/000/143/459/large/discord_icon.png?1641342459'
-    embed.set_author(name='Fountain of Manner', icon_url=fom_logo)
-    embed.set_thumbnail(url=fom_logo)
-    embed.set_image(url=fom_logo)
+    w3c_logo = 'https://w3champions.com/favicon.ico'
+    embed.set_author(name=f'W3Champions Season {season}', icon_url=w3c_logo)
 
     await ctx.send(embed=embed)
 
