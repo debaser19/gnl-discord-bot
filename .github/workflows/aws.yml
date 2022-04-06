@@ -37,8 +37,8 @@ jobs:
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        # IMAGE_TAG: ${{ github.sha }} # used github sha as image tag
-        IMAGE_TAG: ${{ env.IMAGE_TAG }}
+        IMAGE_TAG: ${{ github.sha }} # used github sha as image tag
+        # IMAGE_TAG: ${{ env.IMAGE_TAG }}
       run: |
         # Build a docker container and
         # push it to ECR so that it can
@@ -47,7 +47,7 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
         # Delete all untagged images
-        aws ecr describe-repositories --output text | awk '{print $5}' | egrep -v '^$' | while read line; do  repo=$(echo $line | sed -e  "s/arn:aws:ecr.*\///g") ; aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[*]' --output text | while read imageId; do aws ecr batch-delete-image --repository-name $repo --image-ids imageDigest=$imageId; done; done
+        # aws ecr describe-repositories --output text | awk '{print $5}' | egrep -v '^$' | while read line; do  repo=$(echo $line | sed -e  "s/arn:aws:ecr.*\///g") ; aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[*]' --output text | while read imageId; do aws ecr batch-delete-image --repository-name $repo --image-ids imageDigest=$imageId; done; done
 
     - name: Deploy to AWS
       uses: appleboy/ssh-action@master
