@@ -182,8 +182,8 @@ async def bet(ctx: commands.Context, user, points):
     bet_count = 0
     for row in values:
         if row[0] == ctx.author:
-            await ctx.reply(f"row[0]")
             bet_count += 1
+        await ctx.reply(f"row[0]")
         await ctx.reply(f"Bet count: {bet_count}")
 
     # set list of valid choices
