@@ -183,8 +183,6 @@ async def bet(ctx: commands.Context, user, points):
     for row in values:
         if row[0] == str(ctx.author):
             bet_count += 1
-        await ctx.reply(f"{row[0]} - {ctx.author}")
-        await ctx.reply(f"Bet count: {bet_count}")
 
     # set list of valid choices
     valid_choices = ['a', 'b', 'c', 'd', 'e', 'f']
@@ -199,7 +197,19 @@ async def bet(ctx: commands.Context, user, points):
             await message.delete()
         # if bet_count >= 3, reject bet and inform user
         elif bet_count >= 3:
-            await ctx.reply('You have already placed 3 bets')
+            # get list of users current bets
+            current_bets = []
+            for row in values:
+                if row[0] == str(ctx.author):
+                    current_bets.append(row)
+            
+            # create a string of current bets
+            current_bets_string = ''
+            current_bet_id = 1
+            for bet in current_bets:
+                current_bets_string += f'{current_bet_id}) Winner: {bet[1]} Wager: {bet[2]}\n'
+            
+            await ctx.reply('You have already placed 3 bets. Remove a bet with `!removebet <bet_id>`\nCurrent bets:\n' + current_bets_string)
             await message.delete()
         # elif any(str(ctx.author) in value for value in values):
         #     res = sh.find(str(ctx.author))
