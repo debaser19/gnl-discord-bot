@@ -228,6 +228,7 @@ async def bet(ctx: commands.Context, user, points):
             # reject bet if author has already bet on given matchup
             for row in values:
                 if row[0] == str(ctx.author) and row[1] == player:
+                    await message.delete()
                     await ctx.reply(f'You have already bet on {player}. Choose another outcome.')
                     return 1
 
