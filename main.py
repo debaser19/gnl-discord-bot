@@ -177,6 +177,12 @@ async def bet(ctx: commands.Context, user, points):
     sh = get_betting_sheet()
     values = sh.get_all_values()
     print(values)
+    
+    # reject bet if author has already bet on given matchup
+    for row in values:
+        if row[0] == str(ctx.author) and row[1] == user:
+            await ctx.reply(f'You have already bet on {user}. Choose another outcome.')
+            return 1
 
     # check if user has already places 3 bets
     bet_count = 0
@@ -265,6 +271,7 @@ async def removebet(ctx: commands.Context, bet_id):
     users_current_bet_id = 0
     for row in values:
         if row[0] == str(ctx.author):
+            ctx.reply(f"{ctx.author} row {current_row} bet_id {users_current_bet_id}")
             users_current_bet_id += 1
             if bet_id == users_current_bet_id:
                 sh.delete_row(current_row)
