@@ -207,7 +207,8 @@ async def bet(ctx: commands.Context, user, points):
             current_bets_string = ''
             current_bet_id = 1
             for bet in current_bets:
-                current_bets_string += f'{current_bet_id}) Winner: {bet[1]} Wager: {bet[2]}\n'
+                current_bets_string += f'{current_bet_id}) **Winner**: {bet[1]} **Wager**: {bet[2]}\n'
+                current_bet_id += 1
             
             await ctx.reply('You have already placed 3 bets. Remove a bet with `!removebet <bet_id>`\nCurrent bets:\n' + current_bets_string)
             await message.delete()
@@ -251,6 +252,27 @@ async def createbet(ctx: commands.Context, p1_name, p1_race, p2_name, p2_race):
         description=f'Place your bets with `!bet <player> <points>`')
     
     await ctx.send(embed=embed)
+
+
+# command to remove a user's bet, only allowing user to delete their own bets
+@bot.command(name='removebet')
+async def removebet(ctx: commands.Context, bet_id):
+    # loop through user's bets and remove the one with the given bet_id
+    sh = get_betting_sheet()
+    values = sh.get_all_values()
+    current_row = 1
+    users_current_bet_id = 0
+    for row in values:
+        if row[0] == str(ctx.author):
+            users_current_bet_id += 1
+            if bet_id == users_current_bet_id:
+                sh.delete_row(current_row)
+                await ctx.reply(f'Removed bet {bet_id}')
+                return
+        current_row += 1
+    
+    await ctx.reply(f'You do not have a bet with ID {bet_id}')
+
 
 
 @bot.command(name='listmatches')
