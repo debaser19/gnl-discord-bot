@@ -177,12 +177,6 @@ async def bet(ctx: commands.Context, user, points):
     sh = get_betting_sheet()
     values = sh.get_all_values()
     print(values)
-    
-    # reject bet if author has already bet on given matchup
-    for row in values:
-        if row[0] == str(ctx.author) and row[1] == user:
-            await ctx.reply(f'You have already bet on {user}. Choose another outcome.')
-            return 1
 
     # check if user has already places 3 bets
     bet_count = 0
@@ -231,6 +225,12 @@ async def bet(ctx: commands.Context, user, points):
         #     ''')
         #     await message.delete()
         else:
+            # reject bet if author has already bet on given matchup
+            for row in values:
+                if row[0] == str(ctx.author) and row[1] == user:
+                    await ctx.reply(f'You have already bet on {user}. Choose another outcome.')
+                    return 1
+                    
             author = str(ctx.author)
             print(f'Responding to {author}')
             bet_content = [author, player, points, current_time]
@@ -263,7 +263,7 @@ async def createbet(ctx: commands.Context, p1_name, p1_race, p2_name, p2_race):
 # command to remove a user's bet, only allowing user to delete their own bets
 @bot.command(name='removebet')
 async def removebet(ctx: commands.Context, bet_id):
-    bet_id = str(bet_id)
+    bet_id = int(bet_id)
     # loop through user's bets and remove the one with the given bet_id
     sh = get_betting_sheet()
     values = sh.get_all_values()
