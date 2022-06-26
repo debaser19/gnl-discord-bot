@@ -257,6 +257,7 @@ async def createbet(ctx: commands.Context, p1_name, p1_race, p2_name, p2_race):
 # command to remove a user's bet, only allowing user to delete their own bets
 @bot.command(name='removebet')
 async def removebet(ctx: commands.Context, bet_id):
+    bet_id = str(bet_id)
     # loop through user's bets and remove the one with the given bet_id
     sh = get_betting_sheet()
     values = sh.get_all_values()
