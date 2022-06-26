@@ -157,6 +157,7 @@ async def stats(ctx: commands.Context, w3c_username, season=None):
 
 @bot.command(name="bet")
 async def bet(ctx: commands.Context, user, points):
+    # convert points to int and validate input
     try:
         points = int(points)
     except:
@@ -167,13 +168,23 @@ async def bet(ctx: commands.Context, user, points):
             )
         return 1
     message = await ctx.reply('Processing...')
+    # get current time and date for when bet was placed
     current_time = datetime.now().strftime('%m/%d/%Y %I:%M:%S %p')
+    # get the current sheet and store values in matches
     matchup_sheet = get_matchup_sheet()
     matches = matchup_sheet.get_all_values()
     print(matches)
     sh = get_betting_sheet()
     values = sh.get_all_values()
     print(values)
+
+    # check if user has already places 3 bets
+    bet_count = 0
+    for row in values:
+        if row[0] == ctx.author:
+            bet_count += 1
+
+    # set list of valid choices
     valid_choices = ['a', 'b', 'c', 'd', 'e', 'f']
     if user.lower() in valid_choices:
         try:
@@ -181,21 +192,25 @@ async def bet(ctx: commands.Context, user, points):
         except:
             await ctx.reply('Featured matches not set yet. Try again later')
             return 2
-        if points <= 0 or points > 5:
-            await ctx.reply('Invalid bet: Points must be between 1 and 5')
+        if points <= 0 or points > 3:
+            await ctx.reply('Invalid bet: Points must be between 1 and 3')
             await message.delete()
-        elif any(str(ctx.author) in value for value in values):
-            res = sh.find(str(ctx.author))
-            cell = (res.row, res.col)
-            print(f'Found {str(ctx.author)} at {cell}')
-            sh.update_cell(res.row, 2, player)
-            sh.update_cell(res.row, 3, points)
-            sh.update_cell(res.row, 4, current_time)
-            await ctx.reply(f'''
-            You have already voted on a matchup this week. Updating your previous entry.
-            {ctx.author} bet {points} points on {parse_player(user, matches)}
-            ''')
+        # if bet_count >= 3, reject bet and inform user
+        elif bet_count >= 3:
+            await ctx.reply('You have already placed 3 bets')
             await message.delete()
+        # elif any(str(ctx.author) in value for value in values):
+        #     res = sh.find(str(ctx.author))
+        #     cell = (res.row, res.col)
+        #     print(f'Found {str(ctx.author)} at {cell}')
+        #     sh.update_cell(res.row, 2, player)
+        #     sh.update_cell(res.row, 3, points)
+        #     sh.update_cell(res.row, 4, current_time)
+        #     await ctx.reply(f'''
+        #     You have already voted on a matchup this week. Updating your previous entry.
+        #     {ctx.author} bet {points} points on {parse_player(user, matches)}
+        #     ''')
+        #     await message.delete()
         else:
             author = str(ctx.author)
             print(f'Responding to {author}')
