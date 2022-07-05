@@ -248,6 +248,44 @@ async def bet(ctx: commands.Context, user, points):
             )
 
 
+# create a command to list the total amount of points wagered on each outcome
+@bot.command(name="spread")
+async def spread(ctx: commands.Context):
+    # get unique list of players
+    sh = get_betting_sheet()
+    values = sh.get_all_records()
+    players = []
+    for row in values:
+        if row['Outcome'] not in players:
+            players.append(row['Outcome'])
+    
+    # tally up points wagered on each player
+    player_points = {}
+    for player in players:
+        player_points[player] = 0
+        for row in values:
+            if row['Outcome'] == player:
+                player_points[player] += int(row['Points Wagered'])
+    
+    # sort the players by points wagered
+    sorted_players = sorted(player_points.items(), key=lambda x: x[1], reverse=True)
+    
+    # create a string of players and their points
+    player_points_string = ''
+    for player in sorted_players:
+        player_points_string += f'{player[0]}: {player[1]}\n'
+    
+    # create discord embed and reply with player points
+    embed = discord.Embed(
+        title='Total Points Wagered',
+        colour=0xE45B9D,
+        description=player_points_string
+    )
+    await ctx.send(embed=embed)
+
+
+
+
 @bot.command(name='createbet')
 async def createbet(ctx: commands.Context, p1_name, p1_race, p2_name, p2_race):
     sh = get_matchup_sheet()
