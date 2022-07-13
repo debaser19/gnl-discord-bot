@@ -117,7 +117,7 @@ async def mmr(ctx: commands.Context, w3c_username, w3c_race):
 async def stats(ctx: commands.Context, w3c_username, season=None):
     username = w3c_username.replace('#', '%23')
     if season is None:
-        season = 11
+        season = 12
     res = requests.get(config.W3C_URL + username + f'/game-mode-stats?gateWay=20&season={season}')
     race_list = []
 
