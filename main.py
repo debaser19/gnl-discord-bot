@@ -455,9 +455,12 @@ async def upcoming(ctx: commands.Context):
 
     await message.delete()
 
-    await ctx.reply(
-        f"The following matches have no caster and are scheduled to be played within the next 48 hours:\n{result}"
-    )
+    if result == "":
+        await ctx.reply("No uncasted matches found for the next 48 hours")
+    else:
+        await ctx.reply(
+            f"The following matches have no caster and are scheduled to be played within the next 48 hours:\n{result}"
+        )
 
 
 @tasks.loop(minutes=15)
@@ -486,7 +489,7 @@ async def check_scheduled_matches():
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
-    # check_scheduled_matches.start()
+    check_scheduled_matches.start()
 
 
 DISCORD_TOKEN = config.DISCORD_TOKEN
