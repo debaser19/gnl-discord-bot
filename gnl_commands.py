@@ -156,55 +156,48 @@ def find_uncasted_matches():
                         "p2_name": matchup[7],
                     }
                 )
+    # remove trailing whitespace from dates
+    for matchup in matchups_list:
+        matchup["date"] = matchup["date"].strip()
 
     # convert to datetime objects
     from datetime import datetime, timedelta
 
+    new_matchups_list = []
     for matchup in matchups_list:
         try:
-            matchup["time"] = datetime.strptime(matchup["time"], "%I:%M %p")
-            matchup["time"] = matchup["time"].replace(year=datetime.now().year)
+            matchup["time"] = datetime.strptime(matchup["time"], "%I:%M %p").time()
         except ValueError:
-            matchup["time"] = datetime.strptime(matchup["time"], "%I:%M:%S %p")
-            matchup["time"] = matchup["time"].replace(year=datetime.now().year)
+            matchup["time"] = datetime.strptime(matchup["time"], "%I:%M:%S %p").time()
 
         try:
-            matchup["date"] = datetime.strptime(matchup["date"], "%a %d %b")
+            matchup["date"] = datetime.strptime(matchup["date"], "%a %d %b").date()
             matchup["date"] = matchup["date"].replace(year=datetime.now().year)
         except ValueError:
-            matchup["date"] = datetime.strptime(matchup["date"], "%a %-d %b")
-            matchup["date"] = matchup["date"].replace(year=datetime.now().year)
+            # matchup["date"] = datetime.strptime(matchup["date"], "%a %-d %b")
+            # matchup["date"] = matchup["date"].replace(year=datetime.now().year)
+            print("no date")
+            print(matchup["p1_name"])
 
         # combine date and time
         try:
             matchup_datetime = datetime.combine(matchup["date"], matchup["time"])
+            matchup["datetime"] = matchup_datetime
         except Exception as e:
             # TODO: sometimes returning None value
             # combine() argument 2 must be datetime.time, not datetime.datetime
             print(e)
             matchup_datetime = None
 
-        # check if the matchup is in the past or datetime is None
-        if matchup_datetime == None:
-            print(
-                f"Removing match {matchup['p1_name']} vs {matchup['p2_name']} for None value"
-            )
-            matchups_list.remove(matchup)
-        elif matchup_datetime < datetime.now():
-            print(
-                f"Removing matchup {matchup['p1_name']} vs {matchup['p2_name']} for being in the past"
-            )
-            matchups_list.remove(matchup)
-        # check if matchup in more than 1 hour away
-        elif matchup_datetime - datetime.now() > timedelta(hours=1):
-            print(
-                f"Removing matchup {matchup['p1_name']} vs {matchup['p2_name']} for being more than 1 hour away"
-            )
-            matchups_list.remove(matchup)
+        # remove matchups that have no date, are in the past, or more than one hour away
+        if (
+            matchup_datetime is not None
+            and matchup_datetime > datetime.now()
+            and matchup_datetime < datetime.now() + timedelta(hours=2)
+        ):
+            # print(f"Removing matchup: {matchup}")
+            print(f"Adding matchup: {matchup}")
+            new_matchups_list.append(matchup)
 
         # return matchups_list
-    return matchups_list
-
-
-for match in find_uncasted_matches():
-    print(match)
+    return new_matchups_list

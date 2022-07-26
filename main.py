@@ -435,17 +435,49 @@ async def lookup(ctx: commands.Context, user):
     await ctx.reply(f"{user} has {points} points")
 
 
-# @tasks.loop(minutes=15)
-# async def check_scheduled_matches():
-#     channel = bot.get_channel(950602007700447252)
-#     print("Balls")
-#     await channel.send("Balls")
+@bot.command(name="upcoming")
+async def upcoming(ctx: commands.Context):
+    message = await ctx.reply("Please wait, fetching matches...")
+    import gnl_commands
+
+    upcoming_matches = gnl_commands.find_uncasted_matches()
+    result = ""
+    for match in upcoming_matches:
+        # convert match["datetime"] to string containing date and time
+        match_date = match["datetime"].strftime("%a %d %b @ %I:%M %p EST")
+
+        result += f"{match['p1_name']} vs {match['p2_name']} - {match_date}\n"
+
+    await message.delete()
+
+    await ctx.reply(
+        f"The following matches have no caster and are scheduled to be played within the next 48 hours:\n{result}"
+    )
+
+
+@tasks.loop(minutes=15)
+async def check_scheduled_matches():
+    channel = bot.get_channel(689941824424771712)
+    caster_role = "<@&569926408932032513>"
+    import gnl_commands
+
+    upcoming_matches = gnl_commands.find_uncasted_matches()
+    result = ""
+    for match in upcoming_matches:
+        # convert match["datetime"] to string containing date and time
+        match_date = match["datetime"].strftime("%a %d %b @ %I:%M %p EST")
+
+        result += f"{match['p1_name']} vs {match['p2_name']} - {match_date}\n"
+
+    await channel.send(
+        f"**Matches scheduled in the next 2 hours without a caster**:\n\n{result}\n\n{caster_role}"
+    )
 
 
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
-    # check_scheduled_matches.start()
+    check_scheduled_matches.start()
 
 
 DISCORD_TOKEN = config.DISCORD_TOKEN
