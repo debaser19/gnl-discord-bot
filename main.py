@@ -394,7 +394,7 @@ async def gnlscore(
 
 
 @bot.command(name="gnlschedule")
-@commands.has_role("GNL Admin")
+@commands.has_role("GNL Captains & Coaches")
 async def gnlschedule(
     ctx: commands.Context, week_num, p1_name, p2_name, match_date, match_time
 ):
