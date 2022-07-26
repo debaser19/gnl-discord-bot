@@ -377,7 +377,7 @@ async def clearmatches(ctx: commands.Context):
 
 # GNL Score commands
 @bot.command(name="gnlscore")
-@commands.has_role("GNL Captains & Coaches")
+# @commands.has_role("GNL Captains & Coaches")
 async def gnlscore(
     ctx: commands.Context, week_num, p1_name, p2_name, p1_score, p2_score
 ):
@@ -397,7 +397,7 @@ async def gnlscore(
 
 
 @bot.command(name="gnlschedule")
-@commands.has_role("GNL Captains & Coaches")
+# @commands.has_role("GNL Captains & Coaches")
 async def gnlschedule(
     ctx: commands.Context, week_num, p1_name, p2_name, match_date, match_time
 ):
