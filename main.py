@@ -350,6 +350,7 @@ async def listmatches(ctx: commands.Context):
 
 @bot.command(name="clearbets")
 async def clearbets(ctx: commands.Context):
+    print(f"{ctx.author} used command `!clearbets`")
     sh = get_betting_sheet()
     try:
         sh.resize(rows=1)
@@ -362,6 +363,7 @@ async def clearbets(ctx: commands.Context):
 
 @bot.command(name="clearmatches")
 async def clearmatches(ctx: commands.Context):
+    print(f"{ctx.author} used command `!clearmatches`")
     sh = get_matchup_sheet()
     try:
         sh.resize(rows=1)
@@ -379,6 +381,7 @@ async def clearmatches(ctx: commands.Context):
 async def gnlscore(
     ctx: commands.Context, week_num, p1_name, p2_name, p1_score, p2_score
 ):
+    print(f"{ctx.author} used command `!gnlscore`")
     # check if message has an attachment
     if not ctx.message.attachments:
         await ctx.reply("Please attach the replays for the match")
@@ -398,6 +401,7 @@ async def gnlscore(
 async def gnlschedule(
     ctx: commands.Context, week_num, p1_name, p2_name, match_date, match_time
 ):
+    print(f"{ctx.author} used command `!gnlschedule`")
     import gnl_commands
 
     # convert match_date and match_time to datetime object
@@ -437,6 +441,7 @@ async def lookup(ctx: commands.Context, user):
 
 @bot.command(name="upcoming")
 async def upcoming(ctx: commands.Context):
+    print(f"{ctx.author} requested upcoming matches")
     message = await ctx.reply("Please wait, fetching matches...")
     import gnl_commands
 
