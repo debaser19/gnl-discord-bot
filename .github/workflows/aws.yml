@@ -71,6 +71,8 @@ jobs:
           ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           sudo echo "DISCORD_TOKEN='${{ secrets.DISCORD_TOKEN }}'" > config.py
           sudo echo "W3C_URL='${{ secrets.W3C_URL }}'" >> config.py
+          sudo echo "SERVICE_ACCOUNT_FILE='${{ secrets.SERVICE_ACCOUNT_FILE }}'" >> config.py
+          sudo echo "GNL_SHEET='${{ secrets.GNL_SHEET }}'" >> config.py
           sudo echo '${{ secrets.SHEETS_KEY }}' > ${{ secrets.SHEETS_KEY_FILENAME }}
           sudo docker cp config.py ${{ env.CONTAINER_NAME }}:/data
           sudo docker cp ${{ secrets.SHEETS_KEY_FILENAME }} ${{ env.CONTAINER_NAME }}:/data

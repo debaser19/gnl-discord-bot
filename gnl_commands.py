@@ -42,8 +42,6 @@ def get_matchups(week):
 
 
 def update_score(week, p1_name, p2_name, p1_score, p2_score):
-    # TODO: scores will always update on the sheet in the order they are entered
-    # regardless of which player is entered first.
     gc = gspread.service_account(filename=config.SERVICE_ACCOUNT_FILE)
     sh = gc.open_by_url(config.GNL_SHEET)
     worksheet = sh.worksheet(f"Week {week}")
@@ -63,8 +61,14 @@ def update_score(week, p1_name, p2_name, p1_score, p2_score):
         assert cell is not None
     except Exception:
         cell = worksheet.find(current_player["Bnet + Host"])
-    print(current_player["Bnet"])
+
     cell_row = cell.row
+    cell_col = cell.col
+
+    if cell_col == 6:
+        cell_values = [[p1_score, p2_score]]
+    else:
+        cell_values = [[p2_score, p1_score]]
     if (
         p2_name.lower() in worksheet.acell(f"F{cell_row}").value.lower()
         or p2_name.lower() in worksheet.acell(f"I{cell_row}").value.lower()
@@ -73,23 +77,53 @@ def update_score(week, p1_name, p2_name, p1_score, p2_score):
             [
                 {
                     "range": f"G{cell_row}:H{cell_row}",
-                    "values": [[p1_score, p2_score]],
+                    "values": cell_values,
                 }
-            ]
+            ],
+            raw=False,
         )
     else:
-        print("Player not found.")
+        raise Exception(
+            f"Could not find matchup for week {week}: `{p1_name} vs {p2_name}`"
+        )
 
 
-def main():
-    # players = get_players()
-    # for player in players:
-    #     print(player)
+def schedule(week, p1_name, p2_name, match_date, match_time):
+    gc = gspread.service_account(filename=config.SERVICE_ACCOUNT_FILE)
+    sh = gc.open_by_url(config.GNL_SHEET)
+    worksheet = sh.worksheet(f"Week {week}")
+    players = get_players()
 
-    # matchups = get_matchups(1)
-    # for matchup in matchups:
-    #     print(matchup)
-    update_score(1, "debaser", "serai", 1, 2)
+    for player in players:
+        # check if p1_name is in the lowercase values of the player dict
+        if (
+            p1_name.lower() in player["Bnet"].lower()
+            or p1_name.lower() in player["Bnet + Host"].lower()
+            or p1_name.lower() in player["Discord"].lower()
+        ):
+            current_player = player
+            break
 
-
-main()
+    try:
+        cell = worksheet.find(current_player["Bnet"])
+        assert cell is not None
+    except Exception:
+        cell = worksheet.find(current_player["Bnet + Host"])
+    cell_row = cell.row
+    if (
+        p2_name.lower() in worksheet.acell(f"F{cell_row}").value.lower()
+        or p2_name.lower() in worksheet.acell(f"I{cell_row}").value.lower()
+    ):
+        worksheet.batch_update(
+            [
+                {
+                    "range": f"D{cell_row}:E{cell_row}",
+                    "values": [[match_time, match_date]],
+                },
+            ],
+            raw=False,
+        )
+    else:
+        raise Exception(
+            f"Could not find matchup for week {week}: `{p1_name} vs {p2_name}`"
+        )

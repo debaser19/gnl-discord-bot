@@ -373,6 +373,54 @@ async def clearmatches(ctx: commands.Context):
         await ctx.reply(f"Error clearing matches: {e}")
 
 
+# GNL Score commands
+@bot.command(name="gnlscore")
+@commands.has_role("GNL Admin")
+async def gnlscore(
+    ctx: commands.Context, week_num, p1_name, p2_name, p1_score, p2_score
+):
+    # check if message has an attachment
+    if not ctx.message.attachments:
+        await ctx.reply("Please attach the replays for the match")
+        return
+
+    import gnl_commands
+
+    try:
+        gnl_commands.update_score(week_num, p1_name, p2_name, p1_score, p2_score)
+        await ctx.reply(f"Score updated: {p1_name} {p1_score} - {p2_score} {p2_name}")
+    except Exception as e:
+        await ctx.reply(f"Error updating score - could not find player: {e}")
+
+
+@bot.command(name="gnlschedule")
+@commands.has_role("GNL Admin")
+async def gnlschedule(
+    ctx: commands.Context, week_num, p1_name, p2_name, match_date, match_time
+):
+    import gnl_commands
+
+    # convert match_date and match_time to datetime object
+    from datetime import datetime
+
+    # match_time = match_time[:2] + ":" + match_time[2:]
+
+    match_date = datetime.strptime(match_date, "%m/%d/%Y")
+    match_time = datetime.strptime(match_time, "%H%M")
+
+    # convert match_date and match_time to google sheet format
+    match_date = match_date.strftime("%a %d %b")
+    match_time = match_time.strftime("%I:%M %p")
+
+    try:
+        gnl_commands.schedule(week_num, p1_name, p2_name, match_date, match_time)
+        await ctx.reply(
+            f"Week {week_num} match scheduled: {p1_name} vs {p2_name} - {match_date} @ {match_time}"
+        )
+    except Exception as e:
+        await ctx.reply(f"Error updating match schedule - could not find player: {e}")
+
+
 @bot.command()
 async def toUnicode(ctx, emoji):
     await ctx.send(f"{emoji} **{json.dumps(emoji)[1:-1]}**")
