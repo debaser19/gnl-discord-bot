@@ -467,16 +467,20 @@ async def check_scheduled_matches():
     import gnl_commands
 
     upcoming_matches = gnl_commands.find_uncasted_matches()
-    result = ""
-    for match in upcoming_matches:
-        # convert match["datetime"] to string containing date and time
-        match_date = match["datetime"].strftime("%a %d %b @ %I:%M %p EST")
+    if len(upcoming_matches) > 0:
+        print("Listing upcoming matches without caster")
+        result = ""
+        for match in upcoming_matches:
+            # convert match["datetime"] to string containing date and time
+            match_date = match["datetime"].strftime("%a %d %b @ %I:%M %p EST")
 
-        result += f"{match['p1_name']} vs {match['p2_name']} - {match_date}\n"
+            result += f"{match['p1_name']} vs {match['p2_name']} - {match_date}\n"
 
-    await channel.send(
-        f"**Matches scheduled in the next 2 hours without a caster**:\n\n{result}\n\n{caster_role}"
-    )
+        await channel.send(
+            f"**Matches scheduled in the next 2 hours without a caster**:\n\n{result}\n\n{caster_role}"
+        )
+    else:
+        print("No upcoming matches without caster")
 
 
 @bot.event
