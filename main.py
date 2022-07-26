@@ -486,7 +486,7 @@ async def check_scheduled_matches():
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
-    check_scheduled_matches.start()
+    # check_scheduled_matches.start()
 
 
 DISCORD_TOKEN = config.DISCORD_TOKEN

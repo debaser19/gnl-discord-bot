@@ -199,5 +199,7 @@ def find_uncasted_matches():
             print(f"Adding matchup: {matchup}")
             new_matchups_list.append(matchup)
 
-        # return matchups_list
+    # return matchups_list
+    print(f"Matchups List: {matchups_list}")
+    print(f"New: {new_matchups_list}")
     return new_matchups_list
