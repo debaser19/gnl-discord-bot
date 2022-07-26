@@ -127,3 +127,84 @@ def schedule(week, p1_name, p2_name, match_date, match_time):
         raise Exception(
             f"Could not find matchup for week {week}: `{p1_name} vs {p2_name}`"
         )
+
+
+def find_uncasted_matches():
+    gc = gspread.service_account(filename=config.SERVICE_ACCOUNT_FILE)
+    sh = gc.open_by_url(config.GNL_SHEET)
+    matchups_list = []
+
+    for week in range(1, 6):
+        print(f"Checking week {week}")
+        matchups = sh.worksheet(f"Week {week}").batch_get(["B6:I18"])[0]
+        matchups += sh.worksheet(f"Week {week}").batch_get(["B22:I34"])[0]
+        matchups += sh.worksheet(f"Week {week}").batch_get(["B38:I50"])[0]
+        for matchup in matchups:
+            if (
+                matchup[0] == ""  # caster is empty
+                and matchup[2] != ""  # time is not empty
+                and matchup[3] != ""  # date is not empty
+                and matchup[5] == ""  # p1_score is empty
+                and matchup[6] == ""  # p2_score is empty
+            ):
+                matchups_list.append(
+                    {
+                        "caster": matchup[0],
+                        "time": matchup[2],
+                        "date": matchup[3],
+                        "p1_name": matchup[4],
+                        "p2_name": matchup[7],
+                    }
+                )
+
+    # convert to datetime objects
+    from datetime import datetime, timedelta
+
+    for matchup in matchups_list:
+        try:
+            matchup["time"] = datetime.strptime(matchup["time"], "%I:%M %p")
+            matchup["time"] = matchup["time"].replace(year=datetime.now().year)
+        except ValueError:
+            matchup["time"] = datetime.strptime(matchup["time"], "%I:%M:%S %p")
+            matchup["time"] = matchup["time"].replace(year=datetime.now().year)
+
+        try:
+            matchup["date"] = datetime.strptime(matchup["date"], "%a %d %b")
+            matchup["date"] = matchup["date"].replace(year=datetime.now().year)
+        except ValueError:
+            matchup["date"] = datetime.strptime(matchup["date"], "%a %-d %b")
+            matchup["date"] = matchup["date"].replace(year=datetime.now().year)
+
+        # combine date and time
+        try:
+            matchup_datetime = datetime.combine(matchup["date"], matchup["time"])
+        except Exception as e:
+            # TODO: sometimes returning None value
+            # combine() argument 2 must be datetime.time, not datetime.datetime
+            print(e)
+            matchup_datetime = None
+
+        # check if the matchup is in the past or datetime is None
+        if matchup_datetime == None:
+            print(
+                f"Removing match {matchup['p1_name']} vs {matchup['p2_name']} for None value"
+            )
+            matchups_list.remove(matchup)
+        elif matchup_datetime < datetime.now():
+            print(
+                f"Removing matchup {matchup['p1_name']} vs {matchup['p2_name']} for being in the past"
+            )
+            matchups_list.remove(matchup)
+        # check if matchup in more than 1 hour away
+        elif matchup_datetime - datetime.now() > timedelta(hours=1):
+            print(
+                f"Removing matchup {matchup['p1_name']} vs {matchup['p2_name']} for being more than 1 hour away"
+            )
+            matchups_list.remove(matchup)
+
+        # return matchups_list
+    return matchups_list
+
+
+for match in find_uncasted_matches():
+    print(match)

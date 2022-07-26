@@ -1,4 +1,4 @@
-from discord.ext import commands
+from discord.ext import commands, tasks
 import discord
 import requests
 import gspread
@@ -435,9 +435,17 @@ async def lookup(ctx: commands.Context, user):
     await ctx.reply(f"{user} has {points} points")
 
 
+# @tasks.loop(minutes=15)
+# async def check_scheduled_matches():
+#     channel = bot.get_channel(950602007700447252)
+#     print("Balls")
+#     await channel.send("Balls")
+
+
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
+    # check_scheduled_matches.start()
 
 
 DISCORD_TOKEN = config.DISCORD_TOKEN
