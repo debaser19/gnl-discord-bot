@@ -193,7 +193,7 @@ def find_uncasted_matches():
         if (
             matchup_datetime is not None
             and matchup_datetime > datetime.now()
-            and matchup_datetime < datetime.now() + timedelta(hours=2)
+            and matchup_datetime < datetime.now() + timedelta(hours=1)
         ):
             # print(f"Removing matchup: {matchup}")
             print(f"Adding matchup: {matchup}")

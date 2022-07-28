@@ -480,7 +480,7 @@ async def check_scheduled_matches():
             result += f"{match['p1_name']} vs {match['p2_name']} - {match_date}\n"
 
         await channel.send(
-            f"**Matches scheduled in the next 2 hours without a caster**:\n\n{result}\n\n{caster_role}"
+            f"**Matches scheduled in the next hour without a caster**:\n\n{result}\n\n{caster_role}"
         )
     else:
         print("No upcoming matches without caster")
