@@ -129,7 +129,7 @@ def schedule(week, p1_name, p2_name, match_date, match_time):
         )
 
 
-def find_uncasted_matches():
+def get_upcoming_matches():
     gc = gspread.service_account(filename=config.SERVICE_ACCOUNT_FILE)
     sh = gc.open_by_url(config.GNL_SHEET)
     matchups_list = []
@@ -141,8 +141,8 @@ def find_uncasted_matches():
         matchups += sh.worksheet(f"Week {week}").batch_get(["B38:I50"])[0]
         for matchup in matchups:
             if (
-                matchup[0] == ""  # caster is empty
-                and matchup[2] != ""  # time is not empty
+                # matchup[0] == ""  # caster is empty
+                matchup[2] != ""  # time is not empty
                 and matchup[3] != ""  # date is not empty
                 and matchup[5] == ""  # p1_score is empty
                 and matchup[6] == ""  # p2_score is empty
@@ -193,13 +193,14 @@ def find_uncasted_matches():
         if (
             matchup_datetime is not None
             and matchup_datetime > datetime.now()
-            and matchup_datetime < datetime.now() + timedelta(hours=1)
+            and matchup_datetime < datetime.now() + timedelta(hours=24)
         ):
             # print(f"Removing matchup: {matchup}")
             print(f"Adding matchup: {matchup}")
             new_matchups_list.append(matchup)
 
-    # return matchups_list
-    print(f"Matchups List: {matchups_list}")
-    print(f"New: {new_matchups_list}")
+    # sort list based on datetime value
+    new_matchups_list.sort(key=lambda x: x["datetime"])
+    for matchup in new_matchups_list:
+        print(matchup)
     return new_matchups_list

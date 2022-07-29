@@ -441,46 +441,62 @@ async def lookup(ctx: commands.Context, user):
 
 @bot.command(name="upcoming")
 async def upcoming(ctx: commands.Context):
-    print(f"{ctx.author} requested upcoming matches")
-    message = await ctx.reply("Please wait, fetching matches...")
+    message = await ctx.reply("Looking for upcoming matches...")
     import gnl_commands
 
-    upcoming_matches = gnl_commands.find_uncasted_matches()
-    result = ""
-    for match in upcoming_matches:
-        # convert match["datetime"] to string containing date and time
-        match_date = match["datetime"].strftime("%a %d %b @ %I:%M %p EST")
-
-        result += f"{match['p1_name']} vs {match['p2_name']} - {match_date}\n"
-
-    await message.delete()
-
-    if result == "":
-        await ctx.reply("No uncasted matches found for the next 48 hours")
-    else:
-        await ctx.reply(
-            f"The following matches have no caster and are scheduled to be played within the next 48 hours:\n{result}"
-        )
-
-
-@tasks.loop(minutes=15)
-async def check_scheduled_matches():
-    channel = bot.get_channel(689941824424771712)
-    caster_role = "<@&569926408932032513>"
-    import gnl_commands
-
-    upcoming_matches = gnl_commands.find_uncasted_matches()
+    upcoming_matches = gnl_commands.get_upcoming_matches()
     if len(upcoming_matches) > 0:
-        print("Listing upcoming matches without caster")
+        print("Listing matches upcoming in the next 24 hours")
         result = ""
         for match in upcoming_matches:
             # convert match["datetime"] to string containing date and time
-            match_date = match["datetime"].strftime("%a %d %b @ %I:%M %p EST")
+            # match_date = match["datetime"].strftime("%a %d %b @ %I:%M %p EST")
+            # convert match["datetime"] to unix timestamp
+            match_date = int(match["datetime"].timestamp())
+            match_date = f"<t:{match_date}:f>"
+            result += f"**{match['p1_name']}** vs **{match['p2_name']}** - {match_date}"
 
-            result += f"{match['p1_name']} vs {match['p2_name']} - {match_date}\n"
+            if match["caster"] != "":
+                result += f" - <https://twitch.tv/{match['caster']}>\n"
+            else:
+                result += f" - No caster scheduled yet\n"
+
+        await message.delete()
+        await ctx.reply(
+            f"**Matches scheduled in the next 24 hours**:\nMatch times should be automatically converted to your timezone\n\n{result}"
+        )
+    else:
+        await message.delete()
+        await ctx.reply("No matches scheduled in the next 24 hours")
+        print("No upcoming matches without caster")
+
+
+@tasks.loop(hours=12)
+async def check_scheduled_matches():
+    channel = bot.get_channel(689941824424771712)  # gym-youtube channel
+    # channel = bot.get_channel(950602007700447252)  # personal gnl-bot channel
+    caster_role = "<@&569926408932032513>"
+    import gnl_commands
+
+    upcoming_matches = gnl_commands.get_upcoming_matches()
+    if len(upcoming_matches) > 0:
+        print("Listing matches upcoming in the next 24 hours")
+        result = ""
+        for match in upcoming_matches:
+            # convert match["datetime"] to string containing date and time
+            # match_date = match["datetime"].strftime("%a %d %b @ %I:%M %p EST")
+            # convert match["datetime"] to unix timestamp
+            match_date = int(match["datetime"].timestamp())
+            match_date = f"<t:{match_date}:f>"
+            result += f"**{match['p1_name']}** vs **{match['p2_name']}** - {match_date}"
+
+            if match["caster"] != "":
+                result += f" - <https://twitch.tv/{match['caster']}>\n"
+            else:
+                result += f" - No {caster_role} scheduled yet\n"
 
         await channel.send(
-            f"**Matches scheduled in the next hour without a caster**:\n\n{result}\n\n{caster_role}"
+            f"**Matches scheduled in the next 24 hours**:\nMatch times should be automatically converted to your timezone\n\n{result}"
         )
     else:
         print("No upcoming matches without caster")
