@@ -473,8 +473,9 @@ async def upcoming(ctx: commands.Context):
 
 @tasks.loop(hours=12)
 async def check_scheduled_matches():
-    channel = bot.get_channel(689941824424771712)  # gym-youtube channel
+    # channel = bot.get_channel(689941824424771712)  # gym-youtube channel
     # channel = bot.get_channel(950602007700447252)  # personal gnl-bot channel
+    channel = bot.get_channel(554374070079324160)  # gym-newbie-league
     caster_role = "<@&569926408932032513>"
     import gnl_commands
 
