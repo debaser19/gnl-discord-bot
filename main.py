@@ -8,7 +8,11 @@ import json
 
 import config
 
-bot = commands.Bot(command_prefix="!")
+
+intents = discord.Intents.all()
+intents.members = True
+
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 
 def get_race(race):
