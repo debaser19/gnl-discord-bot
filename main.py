@@ -504,6 +504,17 @@ async def check_scheduled_matches():
 
 
 @bot.event
+async def on_message(msg):
+    text_match = ["https://www.youtube.com/watch?v=2vgUzzKP0CU"]
+    if any(x in msg.content for x in text_match):
+        print("Found ghoul pull video")
+        await msg.reply(
+            "**WARNING**: THE ABOVE VIDEO CONTAINS BLASPHEMOUS CONTENT AND SHOULD BE IGNORED. YOU MAY CONTRACT A SERIOUS DISEASE IF YOU WATCH."
+        )
+        await msg.add_reaction("\U0001F44E")
+
+
+@bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
     check_scheduled_matches.start()
